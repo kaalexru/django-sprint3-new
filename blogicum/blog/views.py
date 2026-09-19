@@ -24,10 +24,10 @@ def index(request):
     return render(request, 'blog/index.html', context)
 
 
-def post_detail(request, id):
+def post_detail(request, post_id):
     post = get_object_or_404(
         get_published_posts(),
-        pk=id,
+        pk=post_id,
     )
     context = {'post': post}
     return render(request, 'blog/detail.html', context)
