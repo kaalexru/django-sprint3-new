@@ -3,24 +3,31 @@ from django.utils import timezone
 
 from .models import Category, Post
 
+POSTS_LIMIT = 5
 
-def index(request):
-    post_list = Post.objects.filter(
+
+def get_published_posts():
+    return Post.objects.select_related(
+        'author',
+        'category',
+        'location',
+    ).filter(
         is_published=True,
         pub_date__lte=timezone.now(),
         category__is_published=True,
-    ).order_by('-pub_date')[:5]
+    )
+
+
+def index(request):
+    post_list = get_published_posts()[:POSTS_LIMIT]
     context = {'post_list': post_list}
     return render(request, 'blog/index.html', context)
 
 
 def post_detail(request, id):
     post = get_object_or_404(
-        Post,
-        id=id,
-        is_published=True,
-        pub_date__lte=timezone.now(),
-        category__is_published=True,
+        get_published_posts(),
+        pk=id,
     )
     context = {'post': post}
     return render(request, 'blog/detail.html', context)
@@ -32,10 +39,7 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
-    post_list = category.post_set.filter(
-        is_published=True,
-        pub_date__lte=timezone.now(),
-    ).order_by('-pub_date')
+    post_list = get_published_posts().filter(category=category)
     context = {
         'category': category,
         'post_list': post_list,
