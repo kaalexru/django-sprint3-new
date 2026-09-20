@@ -26,9 +26,7 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
-    post_list = Post.objects.published().with_related().filter(
-        category=category,
-    )
+    post_list = category.post_set.published().with_related()
     context = {
         'category': category,
         'post_list': post_list,
