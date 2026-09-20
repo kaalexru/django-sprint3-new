@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -51,7 +52,25 @@ class Location(PublishedModel):
         return self.name
 
 
+class PostQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(
+            is_published=True,
+            pub_date__lte=timezone.now(),
+            category__is_published=True,
+        )
+
+    def with_related(self):
+        return self.select_related(
+            'author',
+            'category',
+            'location',
+        )
+
+
 class Post(PublishedModel):
+    objects = PostQuerySet.as_manager()
+
     title = models.CharField('Заголовок', max_length=MAX_LENGTH)
     text = models.TextField('Текст')
     pub_date = models.DateTimeField(
