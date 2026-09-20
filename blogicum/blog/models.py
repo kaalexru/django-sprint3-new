@@ -19,6 +19,7 @@ class PublishedModel(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('-created_at',)
 
 
 class Category(PublishedModel):
@@ -99,7 +100,7 @@ class Post(PublishedModel):
         verbose_name='Категория',
     )
 
-    class Meta:
+    class Meta(PublishedModel.Meta):
         ordering = ('-pub_date',)
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
